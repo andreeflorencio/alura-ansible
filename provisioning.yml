@@ -1,0 +1,18 @@
+---
+- hosts: all # Destino de execução
+  tasks: # Tarefas para serem executadas
+    - name: 'Instala PHP5' # Nome da Tarefa
+      apt: # Gerenciado de pacote do destino
+        name: php5 # Pacote de instalação
+        state: latest # Ultima versão do pacote
+      become: yes # Executar com usuário root
+    - name: 'Instala Apache2' # Nome da Tarefa
+      apt: # Gerenciado de pacote do destino
+        name: apache2 # Pacote de instalação
+        state: latest # Ultima versão do pacote
+      become: yes # Executar com usuário root
+    - name: 'Instala modphp' # Nome da Tarefa
+      apt: # Gerenciado de pacote do destino
+        name: libapache2-mod-php5 # Pacote de instalação
+        state: latest # Ultima versão do pacote
+      become: yes # Executar com usuário root
