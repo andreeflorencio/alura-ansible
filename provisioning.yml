@@ -1,5 +1,13 @@
 ---
 - hosts: all # Destino de execução
+  
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+      become: yes
+
   tasks: # Tarefas para serem executadas
     - name: 'Instala pacotes de dependencias do SO' # Nome da Tarefas
       apt: # Gerenciador de pacotes do destino
@@ -22,7 +30,7 @@
         login_user: root
         state: present
 
-    - name: 'Cria o udsuário no MySQL'
+    - name: 'Cria o usuário no MySQL'
       mysql_user:
         login_user: root
         name: wordpress_user
@@ -30,9 +38,9 @@
         priv: 'wordpress_db.*:ALL'
         state: present
 
-    - name: 'Baixa o arquivo de instalção do wordpress'
+    - name: 'Baixa o arquivo de instalação do wordpress'
       get_url:
-        url: 'https://wordpress.org/latest.tar.gz'
+        url: 'https://wordpress.org/wordpress-5.0.tar.gz'
         dest: '/tmp/wordpress.tar.gz'
 
     - name: 'Descompacta arquivo'
@@ -41,3 +49,29 @@
         dest: '/var/www'
         remote_src: yes
       become: yes
+
+    - name: 'Copia arquivo de configuração do Wordpress'
+      copy:
+        src: '/var/www/wordpress/wp-config-sample.php'
+        dest: '/var/www/wordpress/wp-config.php'
+        remote_src: yes
+      become: yes
+
+    - name: 'Configra o wp-config com as entradas do banco de dados'
+      replace:
+        path: '/var/www/wordpress/wp-config.php'
+        regexp: "{{ item.regex }}"
+        replace: "{{ item.value }}"
+      with_items:
+        - { regex: 'database_name_here', value: 'wordpress_db' }
+        - { regex: 'username_here', value: 'wordpress_user' }
+        - { regex: 'password_here', value: '12345' }
+      become: yes
+
+    - name: 'Configurar apacha para servir wordpress'
+      copy:
+        src: 'files/000-default.conf'
+        dest: '/etc/apache2/sites-available/000-default.conf'
+      become: yes
+      notify:
+        - restart apache
