@@ -1,0 +1,13 @@
+---
+- name: 'Instala pacotes de dependencias do SO' # Nome da Tarefas
+  apt: # Gerenciador de pacotes do destino
+    name: # Lista de pacotes para instalação
+      - php5
+      - apache2
+      - libapache2-mod-php5
+      - php5-gd
+      - libssh2-php
+      - php5-mcrypt
+      - php5-mysql
+    state: latest # Última versão do pacote
+  become: yes # Executa com usuário root
